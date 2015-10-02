@@ -90,6 +90,7 @@ function changeDockIcon(aOsPath) {
 
 		objc_msgSend(NSApp, setApplicationIconImage, NIL);
 		
+		/*
 		// unswizzle
 		if (original_imageNamed) { // else it hasnt been swizzled
 			var currentMethod_imageNamed = class_getClassMethod(NSImage, imageNamed);
@@ -99,6 +100,8 @@ function changeDockIcon(aOsPath) {
 			}
 			original_imageNamed = null;
 		}
+		*/
+		self.postMessage(['swizzleImageNamed']);
 		
 	} else {
 		// read from file and set this image to the dock
@@ -124,6 +127,7 @@ function changeDockIcon(aOsPath) {
 		// [myIcon release]
 		// objc_msgSend(myIcon, release); // dont release it as the swizzled implementation needs it
 
+		/*
 		// swizzle it
 		function js_swizzled_imageNamed(c_arg1__self, c_arg2__sel, objc_arg1__NSStringPtr) {
 			console.log('SWIZZLED: imageNamed called');
@@ -151,10 +155,19 @@ function changeDockIcon(aOsPath) {
 		swizzled_imageNamed = IMP_for_imageNamed(js_swizzled_imageNamed); //if use IMP as non-specifically defined as `ctypes.FunctionType(ctypes.default_abi, ID, [ID, SEL, '...']).ptr` you will have variadic in callback defined above, it keeps throwing expecting pointer blah blah. and it wouldnt accept me putting in variadic on this line if do use varidic, on this line it throws `Can't delcare a variadic callback function`
 		
 		var currentMethod_imageNamed = class_getClassMethod(NSImage, imageNamed);
-		var original_imageNamed = method_setImplementation(currentMethod_imageNamed, swizzled_imageNamed);
-		if (original_imageNamed.isNull()) {
+		var previousImp_imageNamed = method_setImplementation(currentMethod_imageNamed, swizzled_imageNamed);
+		if (previousImp_imageNamed.isNull()) {
 			console.error('failed to swizzle');
 		}
+		
+		if (!original_imageNamed) {
+			original_imageNamed = previousImp_imageNamed;
+		}
+		*/
+		
+		var strOfPtrOfMyIcon = myIcon.toString().match(/.*"(.*?)"/)[1];
+		
+		self.postMessage(['swizzleImageNamed', strOfPtrOfMyIcon]);
 
 	}
 	
