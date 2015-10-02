@@ -1,7 +1,7 @@
 {
 	"title": "Firefox on OS X Icon",
 	"name": "firefox-on-os-x-icon",
-	"version": "1.0-nigth",
+	"version": "1.0-night",
 	"description": "Allows you to set a custom icon for your Firefox in you Mac OS X dock.",
 	"main": "index.js",
 	"author": "Davide Barbato",
