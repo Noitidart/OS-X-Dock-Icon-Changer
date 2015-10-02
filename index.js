@@ -1,5 +1,15 @@
 var self = require('sdk/self');
+const {ChromeWorker} = require("chrome");
+var myChromeWorker;
+var BOOTSTRAP = this;
 
+function loadAndSetupWorker() {
+	if (myChromeWorker) {
+		// already initialized worker
+	} else {
+		myChromeWorker = new ChromeWorker(require("sdk/self").data.url('myChromeWorker.js'));
+	}
+}
 
 function applyOsPathOfImageToDock(aOsPath) {
 	// i call this funciton os path, instead of file path. because file path is file://C:/path/to/image.png and OS path is: C:\path\to\image.png (for windows)
@@ -8,6 +18,10 @@ function applyOsPathOfImageToDock(aOsPath) {
 	// if aOsPath is blank, then it should remove dock icon
 	
 	console.error('applying path of: ', aOsPath); // lets do testing
+	
+	loadAndSetupWorker();
+	
+	myChromeWorker.postMessage(['changeDockIcon', aOsPath]);
 }
 
 function onPrefChange(prefName) {
