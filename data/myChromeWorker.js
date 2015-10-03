@@ -123,6 +123,13 @@ function changeDockIcon(aOsPath) {
 
 		// [NSApp setApplicationIconImage: myIcon]
 		objc_msgSend(NSApp, setApplicationIconImage, myIcon);
+		
+		// ensure it is applied, because on startup for some darn reason it seems to reset
+		setTimeout(function() {
+			if (myIcon) {
+				objc_msgSend(NSApp, setApplicationIconImage, myIcon);
+			}
+		}, 10000);
 
 		// [myIcon release]
 		// objc_msgSend(myIcon, release); // dont release it as the swizzled implementation needs it
