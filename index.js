@@ -157,4 +157,18 @@ function startup(text, callback) {
 	});
 }
 
+exports.onUnload = function(reason) {
+    //called when add-on is 
+    //    uninstalled
+    //    disabled
+    //    shutdown
+    //    upgraded
+    //    downgraded
+	console.error('unloading reason:', reason);
+	if (reason != 'shutdown') {
+		// lets undo things
+		applyOsPathOfImageToDock('');
+	}
+};
+
 startup();
