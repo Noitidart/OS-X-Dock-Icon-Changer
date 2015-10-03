@@ -1,7 +1,10 @@
 #Firefox on OS X Icon
 Allows you to set a custom icon for your Firefox in you Mac OS X dock.
 
-# JPM Walkthrough with videos on how to create this addon from scratch:
+# JPM Walkthrough
+This is a screencast of me starting with nothing, installing JPM (well I don't record that part), and creating an addon that is localized. If you follow these videos you can make this addon too from scratch, on your computer.
+
+I want to highlight that apart of the recordings, is me posting the locale files onto beta.babelzilla.org so I can get community to help me with localizations for different languages. Using a community such as beta.babelzilla is really the only way to get localizations, and it's very important.
 
 Screencast Part 1/5: [Youtube :: Tutorial Writing Localized js-ctypes JPM Addon - Part 1](https://www.youtube.com/watch?v=r-kDUVTDY7E)
 
