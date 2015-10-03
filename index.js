@@ -1,5 +1,5 @@
 var self = require('sdk/self');
-const {ChromeWorker, Cu} = require("chrome");
+const {ChromeWorker, Cu} = require('chrome');
 Cu.import('resource://gre/modules/ctypes.jsm');
 
 var myChromeWorker;
@@ -9,7 +9,7 @@ function loadAndSetupWorker() {
 	if (myChromeWorker) {
 		// already initialized worker
 	} else {
-		myChromeWorker = new ChromeWorker(require("sdk/self").data.url('myChromeWorker.js'));
+		myChromeWorker = new ChromeWorker(require('sdk/self').data.url('myChromeWorker.js'));
 		myChromeWorker.addEventListener('message', function handleMessageFromWorker(msg) {
 			console.error('incoming message from worker to server, msg:', msg.data);
 			BOOTSTRAP[msg.data[0]].apply(BOOTSTRAP, msg.data.slice(1));
@@ -18,6 +18,13 @@ function loadAndSetupWorker() {
 }
 
 function applyOsPathOfImageToDock(aOsPath) {
+	
+	
+	if (require('sdk/system').platform != 'darwin') {
+		console.error('not on a mac so this will do nothing');
+		return;
+	}
+	
 	// i call this funciton os path, instead of file path. because file path is file://C:/path/to/image.png and OS path is: C:\path\to\image.png (for windows)
 	// do stuff here to apply icon we'll set this up later
 	
@@ -42,7 +49,7 @@ var myCtypes;
 
 function swizzleImageNamed(aStrOfPtrOfMyIcon) {
 	// because swizziling from another thread is causing crashing
-	console.error('in swizzleImageNamed ctypes:'); // doing console.error('ctypes:', ctypes) gives you error "Not a ctypes type" its so weird
+	console.error('in swizzleImageNamed ctypes:'); // doing console.error('ctypes:', ctypes) gives you error 'Not a ctypes type' its so weird
 	
 	if (!myCtypes) {
 		myCtypes = {};
@@ -120,7 +127,7 @@ function swizzleImageNamed(aStrOfPtrOfMyIcon) {
 }
 
 function onPrefChange(prefName) {
-  console.log("The preference " +  prefName + " value has changed!");
+	console.log('The preference ' +  prefName + ' value has changed!');
 	var prefValue = require('sdk/simple-prefs').prefs[prefName];
 	
 	// prefName will obviously be imagePath as that is our only pref. and we only attached listener to this pref
@@ -130,15 +137,24 @@ function onPrefChange(prefName) {
 }
 
 function startup(text, callback) {
-  // check if preference is not blank, and if it isnt then call our apply icon function
-  var pref_imagePath = require('sdk/simple-prefs').prefs['imagePath'];
-  if (pref_imagePath != '') { // blank because we set default value to blank, and by default we want to icon applied
+
+	console.error('platform:', require('sdk/system').platform);
+	
+	// check if preference is not blank, and if it isnt then call our apply icon function
+	var pref_imagePath = require('sdk/simple-prefs').prefs['imagePath'];
+	if (pref_imagePath != '') { // blank because we set default value to blank, and by default we want to icon applied
 	  // user has a file path set so apply this path as icon:
 	  applyOsPathOfImageToDock(pref_imagePath);
-  }
-  
-  // lets also set up listener on the preference, so when user changes it, it will trigger applyOsPath
-  require("sdk/simple-prefs").on("imagePath", onPrefChange);
+	}
+
+	// lets also set up listener on the preference, so when user changes it, it will trigger applyOsPath
+	require('sdk/simple-prefs').on('imagePath', onPrefChange);
+	
+	var sp = require('sdk/simple-prefs');
+	sp.on('restoreDefault', function() {
+		console.error('clicked the button');
+		require('sdk/simple-prefs').prefs.imagePath = '';
+	});
 }
 
 startup();
