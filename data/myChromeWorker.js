@@ -6,7 +6,7 @@ var WORKER = this;
 
 // Set up messaging system
 self.onmessage = function (msg) {
-
+	console.error('incoming msg to worker:', msg.data);
 	WORKER[msg.data[0]].apply(WORKER, msg.data.slice(1));
 }
 
@@ -77,7 +77,7 @@ var swizzled_imageNamed; // important to make this global otherwise the callback
 var original_imageNamed; // so can restore it
 
 function changeDockIcon(aOsPath) {
-
+	console.error('from chromeworker we got msg to set dock icon to:', aOsPath);
 	
 	if (myIcon) { // due to rentry
 		objc_msgSend(myIcon, release);
@@ -96,7 +96,7 @@ function changeDockIcon(aOsPath) {
 			var currentMethod_imageNamed = class_getClassMethod(NSImage, imageNamed);
 			var previousImp_imageNamed = method_setImplementation(currentMethod_imageNamed, original_imageNamed);
 			if (previousImp_imageNamed.isNull()) {
-
+				console.error('failed to unswizzle');
 			}
 			original_imageNamed = null;
 		}
@@ -137,23 +137,23 @@ function changeDockIcon(aOsPath) {
 		/*
 		// swizzle it
 		function js_swizzled_imageNamed(c_arg1__self, c_arg2__sel, objc_arg1__NSStringPtr) {
-
+			console.log('SWIZZLED: imageNamed called');
 
 			var tt_read = objc_msgSend_char(objc_arg1__NSStringPtr, UTF8String);
-
+			console.info('tt_read:', tt_read, tt_read.toString(), tt_read.isNull());
 
 			var tt_read_jsStr = tt_read_casted.readStringReplaceMalformed();
-
+			console.info('tt_read_jsStr:', tt_read_jsStr, tt_read_jsStr.toString()); // TypeError: tt_read_jsStr.isNull is not a function 
 			
 			return NIL;
 			
 			if (tt_read_jsStr == 'NSApplicationIcon') {
 				// do my hook
-
+				console.log('this is purpose of this swizzle, to return myIcon when they ask for NSApplicationicon');
 				return myIcon;
 			} else {
 				// do normal
-
+				console.log('doing regular imageNamed');
 				var icon = original_imageNamed(c_arg1__self, c_arg2__sel, objc_arg1__NSStringPtr); // this is how you call the original
 				return icon;
 			}
@@ -164,7 +164,7 @@ function changeDockIcon(aOsPath) {
 		var currentMethod_imageNamed = class_getClassMethod(NSImage, imageNamed);
 		var previousImp_imageNamed = method_setImplementation(currentMethod_imageNamed, swizzled_imageNamed);
 		if (previousImp_imageNamed.isNull()) {
-
+			console.error('failed to swizzle');
 		}
 		
 		if (!original_imageNamed) {
