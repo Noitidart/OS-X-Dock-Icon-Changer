@@ -11,7 +11,7 @@ function loadAndSetupWorker() {
 	} else {
 		myChromeWorker = new ChromeWorker(require('sdk/self').data.url('myChromeWorker.js'));
 		myChromeWorker.addEventListener('message', function handleMessageFromWorker(msg) {
-			console.error('incoming message from worker to server, msg:', msg.data);
+
 			BOOTSTRAP[msg.data[0]].apply(BOOTSTRAP, msg.data.slice(1));
 		});
 	}
@@ -21,7 +21,7 @@ function applyOsPathOfImageToDock(aOsPath) {
 	
 	
 	if (require('sdk/system').platform != 'darwin') {
-		console.error('not on a mac so this will do nothing');
+
 		return;
 	}
 	
@@ -30,7 +30,7 @@ function applyOsPathOfImageToDock(aOsPath) {
 	
 	// if aOsPath is blank, then it should remove dock icon
 	
-	console.error('applying path of: ', aOsPath); // lets do testing
+
 	
 	loadAndSetupWorker();
 	
@@ -49,7 +49,7 @@ var myCtypes;
 
 function swizzleImageNamed(aStrOfPtrOfMyIcon) {
 	// because swizziling from another thread is causing crashing
-	console.error('in swizzleImageNamed ctypes:'); // doing console.error('ctypes:', ctypes) gives you error 'Not a ctypes type' its so weird
+
 	
 	if (!myCtypes) {
 		myCtypes = {};
@@ -73,28 +73,28 @@ function swizzleImageNamed(aStrOfPtrOfMyIcon) {
 	}
 	
 	if (aStrOfPtrOfMyIcon) {
-		console.error('swizziling it');
+
 		myIcon = ctypes.voidptr_t(ctypes.UInt64(aStrOfPtrOfMyIcon));
 		
 		// swizzle it
 		function js_swizzled_imageNamed(c_arg1__self, c_arg2__sel, objc_arg1__NSStringPtr) {
-			console.error('SWIZZLED: imageNamed called');
+
 
 			var tt_read = myCtypes.objc_msgSend_char(objc_arg1__NSStringPtr, UTF8String);
-			console.error('tt_read:', tt_read, tt_read.toString(), tt_read.isNull());
+
 
 			var tt_read_jsStr = tt_read.readStringReplaceMalformed();
-			console.error('tt_read_jsStr:', tt_read_jsStr, tt_read_jsStr.toString()); // TypeError: tt_read_jsStr.isNull is not a function 
+
 			
 			// return myCtypes.NIL;
 			
 			if (tt_read_jsStr == 'NSApplicationIcon') {
 				// do my hook
-				console.error('this is purpose of this swizzle, to return myIcon when they ask for NSApplicationicon');
+
 				return myIcon;
 			} else {
 				// do normal
-				console.error('doing regular imageNamed');
+
 				var icon = original_imageNamed(c_arg1__self, c_arg2__sel, objc_arg1__NSStringPtr); // this is how you call the original
 				return icon;
 			}
@@ -105,7 +105,7 @@ function swizzleImageNamed(aStrOfPtrOfMyIcon) {
 		var currentMethod_imageNamed = myCtypes.class_getClassMethod(NSImage, imageNamed);
 		var previousImp_imageNamed = myCtypes.method_setImplementation(currentMethod_imageNamed, swizzled_imageNamed);
 		if (previousImp_imageNamed.isNull()) {
-			console.error('failed to swizzle');
+
 		}
 		
 		if (!original_imageNamed) {
@@ -113,12 +113,12 @@ function swizzleImageNamed(aStrOfPtrOfMyIcon) {
 		}
 	} else {
 		// unswizzle it
-		console.error('UNswizziling it');
+
 		if (original_imageNamed) { // else it wasnt swizzled
 			var currentMethod_imageNamed = myCtypes.class_getClassMethod(NSImage, imageNamed);
 			var previousImp_imageNamed = myCtypes.method_setImplementation(currentMethod_imageNamed, original_imageNamed);
 			if (previousImp_imageNamed.isNull()) {
-				console.error('failed to unswizzle');
+
 			}
 			original_imageNamed = null;
 			myIcon = null; // myChromeWorker released it
@@ -127,7 +127,7 @@ function swizzleImageNamed(aStrOfPtrOfMyIcon) {
 }
 
 function onPrefChange(prefName) {
-	console.log('The preference ' +  prefName + ' value has changed!');
+
 	var prefValue = require('sdk/simple-prefs').prefs[prefName];
 	
 	// prefName will obviously be imagePath as that is our only pref. and we only attached listener to this pref
@@ -138,7 +138,7 @@ function onPrefChange(prefName) {
 
 function startup(text, callback) {
 
-	console.error('platform:', require('sdk/system').platform);
+
 	
 	// check if preference is not blank, and if it isnt then call our apply icon function
 	var pref_imagePath = require('sdk/simple-prefs').prefs['imagePath'];
@@ -152,7 +152,7 @@ function startup(text, callback) {
 	
 	var sp = require('sdk/simple-prefs');
 	sp.on('restoreDefault', function() {
-		console.error('clicked the button');
+
 		require('sdk/simple-prefs').prefs.imagePath = '';
 	});
 }
@@ -164,7 +164,7 @@ exports.onUnload = function(reason) {
     //    shutdown
     //    upgraded
     //    downgraded
-	console.error('unloading reason:', reason);
+
 	if (reason != 'shutdown') {
 		// lets undo things
 		applyOsPathOfImageToDock('');
